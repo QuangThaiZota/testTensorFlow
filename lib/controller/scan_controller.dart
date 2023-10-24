@@ -61,8 +61,8 @@ class ScanController extends GetxController{
 
   initTFlite() async{
     await Tflite.loadModel(
-      model: "assets/model.tflite",
-      labels: "assets/label.txt",
+      model: "assets/model1.tflite",
+      labels: "assets/label1.txt",
       isAsset: true,
       numThreads: 1,
       useGpuDelegate: false,
@@ -84,6 +84,7 @@ class ScanController extends GetxController{
     // threshold: 0.4
     // );
 
+    ///Using SSDMobileNet
     var detector = await Tflite.detectObjectOnFrame(
         bytesList: image.planes.map((plane) {return plane.bytes;}).toList(),// required
         model: "SSDMobileNet",
@@ -113,6 +114,8 @@ class ScanController extends GetxController{
     //     numBoxesPerBlock: 5,  // defaults to 5
     //     asynch: true          // defaults to true
     // );
+
+
 
     if(detector != null){
       log("Result is $detector ");
