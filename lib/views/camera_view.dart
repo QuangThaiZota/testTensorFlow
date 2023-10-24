@@ -17,13 +17,16 @@ class CameraView extends StatelessWidget {
       body: GetBuilder<ScanController>(
         init: ScanController(),
         builder: (controller) {
-          double factorX = screenWidth / (controller.imgWidth);
-          double imgRatio = screenWidth / controller.imgHeight;
-          double newWidth = screenWidth * factorX;
-          double newHeight = newWidth / imgRatio;
-          double factorY = newHeight / (screenHeight);
+          // double factorX = screenWidth / (controller.imgHeight);
+          // double imgRatio = screenWidth / controller.imgHeight;
+          // double newWidth = screenWidth * factorX;
+          // double newHeight = newWidth / imgRatio;
+          // double factorY = newHeight / (screenHeight);
 
-          double pady = (screenHeight - newHeight) / 2;
+          double factorX = screenWidth / (controller.imgHeight);
+          double factorY = screenHeight / (controller.imgWidth);
+
+          // double pady = (screenHeight - newHeight) / 2;
           print("CameraView x1: ${controller.x1}");
           print("CameraView x2: ${controller.x2}");
           print("CameraView y1: ${controller.y1}");
@@ -38,8 +41,8 @@ class CameraView extends StatelessWidget {
                   Positioned(
                     // top: (controller.y)*(screenHeight),
                     // left: (controller.x)*(screenWidth),
-                    left: controller.x1 * factorX,
-                    top: controller.y1 * factorY+ pady,
+                    left: controller.x1 * factorX ,
+                    top: controller.y1 * factorY,
                     width: (controller.x2 - controller.x1) * factorX,
                     height: (controller.y2 - controller.y1) * factorY,
                     // left: 100,

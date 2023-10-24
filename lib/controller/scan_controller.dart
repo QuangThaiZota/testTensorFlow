@@ -26,7 +26,10 @@ class ScanController extends GetxController{
   late List<CameraDescription> cameras;
   late CameraImage cameraImage;
   var x,y,w,h = 0.0;
-  var x1,x2,y1,y2 =0.0;
+  var x1 =10.0;
+  var x2 =10.0;
+  var y1 = 10.0;
+  var y2 =10.0;
   var label="ádfjdkj";
   var cameraCout = 0;
   var imgHeight, imgWidth = 0;
@@ -74,8 +77,8 @@ class ScanController extends GetxController{
 
     //Use Yolo v8
     await vision.loadYoloModel(
-        modelPath: 'assets/yolov8n.tflite',
-        labels: 'assets/yololabels.txt',
+        modelPath: 'assets/best_float16.tflite',
+        labels: 'assets/labelmodel.txt',
         modelVersion: "yolov8",
         quantization: false,
         numThreads: 1,
@@ -164,7 +167,7 @@ class ScanController extends GetxController{
       log("Result is $detector ");
       var ourDetectedObject = detector.first;
       var box = ourDetectedObject['box'];
-      if (box[4] * 100 >=50) {
+      if (box[4] * 100 >=20) {
         log("Result is $ourDetectedObject ");
         label = ourDetectedObject['tag'];
         print("Detected Class: $label");
@@ -202,6 +205,12 @@ class ScanController extends GetxController{
         }
       }
       update();
+    }
+    else {
+      x1=10;
+      x2=10;
+      y1=10;
+      y2=10;
     }
 
 
