@@ -75,15 +75,27 @@ class ScanController extends GetxController{
     //   useGpuDelegate: false,
     // );
 
-    //Use Yolo v8
+    // Use Yolo v8
     await vision.loadYoloModel(
-        modelPath: 'assets/hasCircularShape_chartObjects_googlenet.tflite',
-        labels: 'assets/labelmodel.txt',
-        modelVersion: "yolov8",
+        modelPath: 'assets/yolov5n.tflite',
+        labels: 'assets/labels.txt',
+        modelVersion: "yolov5",
         quantization: false,
-        numThreads: 3,
+        numThreads: 1,
         useGpu: false);
+
+    //YoloV5
+    // await vision.loadYoloModel(
+    //     labels: 'assets/labels.txt',
+    //     modelPath: 'assets/yolov8n.tflite',
+    //     modelVersion: "yolov8",
+    //     quantization: false,
+    //     numThreads: 1,
+    //     useGpu: false);
+
   }
+
+
 
   objectDectector(CameraImage image) async{
     // var detector = await Tflite.runModelOnFrame(
@@ -139,7 +151,21 @@ class ScanController extends GetxController{
         confThreshold: 0.4,
         classThreshold: 0.5);
 
+    // var detector = await vision.yoloOnFrame(
+    //     bytesList: cameraImage.planes.map((plane) => plane.bytes).toList(),
+    //     imageHeight: cameraImage.height,
+    //     imageWidth: cameraImage.width,
+    //     iouThreshold: 0.4,
+    //     confThreshold: 0.4,
+    //     classThreshold: 0.5);
 
+    // var detector = await vision.yoloOnFrame(
+    //     bytesList: cameraImage.planes.map((plane) => plane.bytes).toList(),
+    //     imageHeight: cameraImage.height,
+    //     imageWidth: cameraImage.width,
+    //     iouThreshold: 0.4,
+    //     confThreshold: 0.4,
+    //     classThreshold: 0.5);
 
     // if(detector != null){
     //   log("Result is $detector ");
