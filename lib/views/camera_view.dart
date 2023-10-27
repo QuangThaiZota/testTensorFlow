@@ -10,23 +10,25 @@ class CameraView extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-
-
-
     return Scaffold(
       body: GetBuilder<ScanController>(
         init: ScanController(),
         builder: (controller) {
+          double factorX = screenWidth / (controller.imgWidth);
+          print('factorX: $factorX');
+          double imgRatio = controller.imgWidth / controller.imgHeight;
+          double newWidth = controller.imgWidth * factorX;
+          double newHeight = newWidth / imgRatio;
+          double factorY = newHeight / (controller.imgHeight);
+          print('factor Y: $factorY');
+
           // double factorX = screenWidth / (controller.imgHeight);
-          // double imgRatio = screenWidth / controller.imgHeight;
-          // double newWidth = screenWidth * factorX;
-          // double newHeight = newWidth / imgRatio;
-          // double factorY = newHeight / (screenHeight);
+          // double factorY = screenHeight / (controller.imgWidth);
 
-          double factorX = screenWidth / (controller.imgHeight);
-          double factorY = screenHeight / (controller.imgWidth);
-
-          // double pady = (screenHeight - newHeight) / 2;
+          double pady = (screenHeight - newHeight) / 2;
+          double padx = (screenWidth - newWidth) / 2;
+          print("CameraView screenWidth: ${screenWidth}");
+          print("CameraView screenHeight: ${screenHeight}");
           print("CameraView x1: ${controller.x1}");
           print("CameraView x2: ${controller.x2}");
           print("CameraView y1: ${controller.y1}");
@@ -39,19 +41,11 @@ class CameraView extends StatelessWidget {
                 children: [
                   CameraPreview(controller.cameraController),
                   Positioned(
-                    // top: (controller.y)*(screenHeight),
-                    // left: (controller.x)*(screenWidth),
-                    left: controller.x1 * factorX ,
+                    left: controller.x1 * factorX,
                     top: controller.y1 * factorY,
                     width: (controller.x2 - controller.x1) * factorX,
-                    height: (controller.y2 - controller.y1) * factorY,
-                    // left: 100,
-                    // top: 100,
-                    // width: 100,
-                    // height: 100,
+                    height: (controller.y2 - controller.y1) * factorY  + pady,
                     child: Container(
-                      // width:  (controller.w)*context.width,
-                      // height: (controller.h)*context.height,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.green,width: 4),
@@ -67,6 +61,18 @@ class CameraView extends StatelessWidget {
                       ),
                     ),
                   ),
+                  Column(
+                    children: [
+                      Container(
+                        height: 100,
+                      ),
+                      Text("Size: ${screenWidth} / ${screenHeight}"),
+                      Text("Left: ${controller.x1} / ${controller.x1 * factorX + padx}"),
+                      Text("Top: ${controller.y1} / ${controller.y1 * factorY + pady}"),
+                      Text("Width: ${(controller.x2 - controller.x1) * factorX * 2}"),
+                      Text("Height: ${(controller.y2 - controller.y1) * factorY * 2}"),
+                    ],
+                  )
                 ],
               )
               :const Center(child: Text("Loading Preview..."),);

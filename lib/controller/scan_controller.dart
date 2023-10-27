@@ -77,11 +77,11 @@ class ScanController extends GetxController{
 
     //Use Yolo v8
     await vision.loadYoloModel(
-        modelPath: 'assets/best_float16.tflite',
+        modelPath: 'assets/hasCircularShape_chartObjects_googlenet.tflite',
         labels: 'assets/labelmodel.txt',
         modelVersion: "yolov8",
         quantization: false,
-        numThreads: 1,
+        numThreads: 3,
         useGpu: false);
   }
 
@@ -135,7 +135,7 @@ class ScanController extends GetxController{
         bytesList: image.planes.map((plane) => plane.bytes).toList(),
         imageHeight: image.height,
         imageWidth: image.width,
-        iouThreshold: 0.4,
+        iouThreshold: 0.8,
         confThreshold: 0.4,
         classThreshold: 0.5);
 
@@ -171,23 +171,9 @@ class ScanController extends GetxController{
         log("Result is $ourDetectedObject ");
         label = ourDetectedObject['tag'];
         print("Detected Class: $label");
-
         if (ourDetectedObject['box'] != null) {
-
           print("Result Box: $box");
           print("ScanController:");
-          // x1 = double.parse(box[0]);
-          // print("ScanController x1: $x1");
-          // y1 = double.parse(box[1]);
-          // print("ScanController y1: $y1");
-          // x2 = double.parse(box[2]);
-          // print("ScanController x2: $x2");
-          // y2 = double.parse(box[3]);
-          // print("ScanController 5: $y2");
-          // var classConfidence = double.parse(box[4]);
-          // print("Bounding Box Coordinates 6:");
-          // print("x1: $x1, y1: $y1, x2: $x2, y2: $y2");
-
           x1 = double.tryParse(box[0].toString()) ?? box[0];
           print("ScanController x1: $x1");
           y1 = double.tryParse(box[1].toString()) ?? box[1];
