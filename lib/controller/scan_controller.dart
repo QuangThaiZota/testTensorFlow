@@ -77,11 +77,11 @@ class ScanController extends GetxController{
 
     // Use Yolo v8
     await vision.loadYoloModel(
-        modelPath: 'assets/yolov5n.tflite',
-        labels: 'assets/labels.txt',
-        modelVersion: "yolov5",
-        quantization: false,
-        numThreads: 1,
+        modelPath: 'assets/best_float16.tflite',
+        labels: 'assets/labelmodel.txt',
+        modelVersion: "yolov8",
+        quantization: true,
+        numThreads: 4,
         useGpu: false);
 
     //YoloV5
@@ -147,7 +147,7 @@ class ScanController extends GetxController{
         bytesList: image.planes.map((plane) => plane.bytes).toList(),
         imageHeight: image.height,
         imageWidth: image.width,
-        iouThreshold: 0.8,
+        iouThreshold: 0.4,
         confThreshold: 0.4,
         classThreshold: 0.5);
 
@@ -193,7 +193,7 @@ class ScanController extends GetxController{
       log("Result is $detector ");
       var ourDetectedObject = detector.first;
       var box = ourDetectedObject['box'];
-      if (box[4] * 100 >=20) {
+      if (box[4] * 100 >=50) {
         log("Result is $ourDetectedObject ");
         label = ourDetectedObject['tag'];
         print("Detected Class: $label");
@@ -208,21 +208,15 @@ class ScanController extends GetxController{
           print("ScanController x2: $x2");
           y2 = double.tryParse(box[3].toString()) ?? box[3];
           print("ScanController 5: $y2");
-          var classConfidence = double.tryParse(box[4].toString()) ?? box[4];
+          // var classConfidence = double.tryParse(box[4].toString()) ?? box[4];
           print("Bounding Box Coordinates 6:");
           print("x1: $x1, y1: $y1, x2: $x2, y2: $y2");
-          print("Class Confidence: $classConfidence");
-          // var classConfidence = box['class_confidence'];
-          print("Class Confidence: $classConfidence");
         }
       }
       update();
     }
     else {
-      x1=10;
-      x2=10;
-      y1=10;
-      y2=10;
+      detector.clear();
     }
 
 
