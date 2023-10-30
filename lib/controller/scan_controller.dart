@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:camera/camera.dart';
@@ -35,6 +36,22 @@ class ScanController extends GetxController{
   var imgHeight, imgWidth = 0;
   var isCameraInitialized = false.obs;
   FlutterVision vision = FlutterVision();
+  late Timer yoloTimer;
+
+  late Timer frameTimer;
+
+  void startFrameTimer() {
+    const frameDuration = const Duration(milliseconds: 16); // 16ms là thời gian giữa các khung hình, tương đương với 60 khung hình mỗi giây
+    frameTimer = Timer.periodic(frameDuration, (timer) {
+      // Thực hiện xử lý khung hình ở đây, ví dụ:
+      objectDectector(cameraImage);
+    });
+  }
+
+  void stopFrameTimer() {
+    frameTimer?.cancel();
+  }
+
 
 
   initCamera() async{
@@ -44,13 +61,13 @@ class ScanController extends GetxController{
 
         cameraController = await CameraController(
           cameras[0],
-          ResolutionPreset.max,
-          // imageFormatGroup: ImageFormatGroup.fromCameras(cameras),
+          ResolutionPreset.max,          // imageFormatGroup: ImageFormatGroup.fromCameras(cameras),
         );
         await cameraController.initialize().then((value) {
+
            cameraController.startImageStream((image){
              cameraCout++;
-             if(cameraCout%10==0){
+             if(cameraCout%5==0){
                cameraCout =0;
                objectDectector(image);
              }
@@ -58,12 +75,15 @@ class ScanController extends GetxController{
            });
         });
         isCameraInitialized(true);
+        startFrameTimer();
+        // startYoloTimer(); // Bắt đầu chạy YOLO mỗi 0.25 giây
         update();
       }
     else
       {
         print("Permission denies");
       }
+    update();
   }
 
   initTFlite() async{
@@ -193,7 +213,7 @@ class ScanController extends GetxController{
       log("Result is $detector ");
       var ourDetectedObject = detector.first;
       var box = ourDetectedObject['box'];
-      if (box[4] * 100 >=50) {
+      if (box[4] * 100 >=20) {
         log("Result is $ourDetectedObject ");
         label = ourDetectedObject['tag'];
         print("Detected Class: $label");
