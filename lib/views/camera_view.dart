@@ -25,46 +25,72 @@ class CameraView extends StatelessWidget {
           // double factorX = screenWidth / (controller.imgHeight);
           // double factorY = screenHeight / (controller.imgWidth);
 
-          double factorX = screenWidth / (controller.imgHeight);
-          double factorY = screenHeight / (controller.imgWidth);
+          double factorX = screenWidth / (controller.imgHeight ?? 1);
+          double factorY = screenHeight / (controller.imgWidth ?? 1);
           print('factor Y: $factorY');
 
           // double pady = (screenHeight - newHeight) / 2;
           // double padx = (screenWidth - newWidth) / 2;
-          print("CameraView screenWidth: ${screenWidth}");
-          print("CameraView screenHeight: ${screenHeight}");
-          print("CameraView x1: ${controller.x1}");
-          print("CameraView x2: ${controller.x2}");
-          print("CameraView y1: ${controller.y1}");
-          print("CameraView y2: ${controller.y2}");
-          print("CameraView label: ${controller.label}");
-          print("CameraView imgHeight: ${controller.imgHeight}");
-          print("CameraView imgWidth: ${controller.imgWidth}");
+          // print("CameraView screenWidth: ${screenWidth}");
+          // print("CameraView screenHeight: ${screenHeight}");
+          // print("CameraView x1: ${controller.x1}");
+          // print("CameraView x2: ${controller.x2}");
+          // print("CameraView y1: ${controller.y1}");
+          // print("CameraView y2: ${controller.y2}");
+          // print("CameraView label: ${controller.label}");
+          // print("CameraView imgHeight: ${controller.imgHeight}");
+          // print("CameraView imgWidth: ${controller.imgWidth}");
           return controller.isCameraInitialized.value
               ? Stack(
                 children: [
                   CameraPreview(controller.cameraController),
+                  // Positioned(
+                  //   left:  (controller.x1 ??1) * factorX,
+                  //   top: (controller.y1??1) * factorY,
+                  //   child: Container(
+                  //     width: (controller.x2??1 - controller.x1??1) * factorX,
+                  //     height: (controller.y2??1 - controller.y1??1)* factorY,
+                  //     decoration: BoxDecoration(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       border: Border.all(color: Colors.green,width: 4),
+                  //     ),
+                  //     child: Column(
+                  //       mainAxisSize: MainAxisSize.min,
+                  //       children: [
+                  //         Container(
+                  //             color: Colors.white,
+                  //             child: Text("${controller.label}"),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
+
                   Positioned(
-                    left: controller.x1 * factorX,
-                    top: controller.y1 * factorY,
-                    child: Container(
-                      width: (controller.x2 - controller.x1) * factorX,
-                      height: (controller.y2 - controller.y1) * factorY,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green,width: 4),
+                    left: controller.x1 != null ? controller.x1 * factorX : null,
+                    top: controller.y1 != null ? controller.y1 * factorY : null,
+                    child: controller.x1 != null && controller.x2 != null && controller.y1 != null && controller.y2 != null
+                        ? Container(
+                          width: (controller.x2 - controller.x1) * factorX,
+                          height: (controller.y2 - controller.y1) * factorY,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.green, width: 4),
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
+                          child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
                               color: Colors.white,
                               child: Text("${controller.label}"),
                           ),
                         ],
                       ),
-                    ),
+                    )
+                        : Container(), // Sử dụng Container rỗng khi giá trị là null
                   ),
+
+
                   Column(
                     children: [
                       Container(
