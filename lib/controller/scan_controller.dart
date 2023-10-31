@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_vision/flutter_vision.dart';
 
 class ScanController extends GetxController{
+  CameraImage? cameraImage;
 
   @override
   void onInit(){
@@ -25,7 +26,7 @@ class ScanController extends GetxController{
 
   late CameraController cameraController;
   late List<CameraDescription> cameras;
-  late CameraImage cameraImage;
+
   var x,y,w,h = 0.0;
   var x1, x2, y1, y2;
   var label;
@@ -40,13 +41,13 @@ class ScanController extends GetxController{
 
   late Timer frameTimer;
 
-  void startFrameTimer() {
-    const frameDuration = const Duration(milliseconds: 16); // 16ms là thời gian giữa các khung hình, tương đương với 60 khung hình mỗi giây
-    frameTimer = Timer.periodic(frameDuration, (timer) {
-      // Thực hiện xử lý khung hình ở đây, ví dụ:
-      objectDectector(cameraImage);
-    });
-  }
+  // void startFrameTimer() {
+  //   const frameDuration = const Duration(milliseconds: 16); // 16ms là thời gian giữa các khung hình, tương đương với 60 khung hình mỗi giây
+  //   frameTimer = Timer.periodic(frameDuration, (timer) {
+  //     // Thực hiện xử lý khung hình ở đây, ví dụ:
+  //     objectDectector(cameraImage);
+  //   });
+  // }
 
   void stopFrameTimer() {
     frameTimer?.cancel();
@@ -66,6 +67,7 @@ class ScanController extends GetxController{
         await cameraController.initialize().then((value) {
 
            cameraController.startImageStream((image){
+             cameraImage = image;
              cameraCout++;
              if(cameraCout%2==0){
                cameraCout =0;
@@ -75,7 +77,7 @@ class ScanController extends GetxController{
            });
         });
         isCameraInitialized(true);
-        startFrameTimer();
+        // startFrameTimer();
         // startYoloTimer(); // Bắt đầu chạy YOLO mỗi 0.25 giây
         update();
       }
@@ -242,6 +244,11 @@ class ScanController extends GetxController{
   // }
 
   objectDectector(CameraImage image) async {
+
+    if (cameraImage == null) {
+      return; // Tránh xử lý nếu cameraImage chưa được khởi tạo
+    }
+
     var detector = await vision.yoloOnFrame(
       bytesList: image.planes.map((plane) => plane.bytes).toList(),
       imageHeight: image.height,
