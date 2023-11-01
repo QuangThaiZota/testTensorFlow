@@ -53,7 +53,7 @@ class _CameraViewState extends State<CameraView> {
                         // Image.memory(Uint8List.fromList(croppedImage), fit: BoxFit.cover, width: double.infinity, height: double.infinity),
                         GestureDetector(
                             onTap: (){
-                              Navigator.pop(context);
+                              // Navigator.pop(context);
                             },
                             child: button(Icons.arrow_back_ios_new_outlined, Alignment.topLeft,
                                 false,  Colors.transparent, Colors.white)),

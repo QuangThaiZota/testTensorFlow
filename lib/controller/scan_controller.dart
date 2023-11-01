@@ -15,7 +15,7 @@ class ScanController extends GetxController{
     super.onInit();
     initCamera();
     initTFlite();
-    // label = "ddd";
+    label = "ddd";
   }
 
   @override
@@ -41,13 +41,13 @@ class ScanController extends GetxController{
 
   late Timer frameTimer;
 
-  // void startFrameTimer() {
-  //   const frameDuration = const Duration(milliseconds: 16); // 16ms là thời gian giữa các khung hình, tương đương với 60 khung hình mỗi giây
-  //   frameTimer = Timer.periodic(frameDuration, (timer) {
-  //     // Thực hiện xử lý khung hình ở đây, ví dụ:
-  //     objectDectector(cameraImage);
-  //   });
-  // }
+  void startFrameTimer() {
+    const frameDuration = const Duration(milliseconds: 16); // 16ms là thời gian giữa các khung hình, tương đương với 60 khung hình mỗi giây
+    frameTimer = Timer.periodic(frameDuration, (timer) {
+      // Thực hiện xử lý khung hình ở đây, ví dụ:
+      objectDectector(cameraImage!);
+    });
+  }
 
   void stopFrameTimer() {
     frameTimer?.cancel();
@@ -69,7 +69,7 @@ class ScanController extends GetxController{
            cameraController.startImageStream((image){
              cameraImage = image;
              cameraCout++;
-             if(cameraCout%2==0){
+             if(cameraCout%10==0){
                cameraCout =0;
                objectDectector(image);
              }
@@ -77,7 +77,7 @@ class ScanController extends GetxController{
            });
         });
         isCameraInitialized(true);
-        // startFrameTimer();
+        startFrameTimer();
         // startYoloTimer(); // Bắt đầu chạy YOLO mỗi 0.25 giây
         update();
       }
@@ -99,7 +99,7 @@ class ScanController extends GetxController{
 
     // Use Yolo v8
     await vision.loadYoloModel(
-        modelPath: 'assets/best_float16.tflite',
+        modelPath: 'assets/best_float32.tflite',
         labels: 'assets/labelmodel.txt',
         modelVersion: "yolov8",
         quantization: true,
