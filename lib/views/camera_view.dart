@@ -99,7 +99,7 @@ class _CameraViewState extends State<CameraView> {
     );
   }
 
-  void autoCapture(ScanController controller, double factorX, double factorY) async {
+  Future<void> autoCapture(ScanController controller, double factorX, double factorY) async {
     print("chụp ảnh 1");
     if (isAutoCapturing || capturedImage != null) {
       return;
@@ -124,7 +124,8 @@ class _CameraViewState extends State<CameraView> {
             File(croppedImage!.path);
         print("Đường dẫn ảnh sau cắt: ${capturedImage}");
         isAutoCapturing = false;
-      });
+      }
+      );
     } catch (e) {
       print("Lỗi khi chụp và cắt hình ảnh: $e");
       isAutoCapturing = false;
@@ -159,10 +160,10 @@ class _CameraViewState extends State<CameraView> {
     // Continue with cropping the image here.
     final img.Image croppedImage = img.copyCrop(imgImage, x.toInt(), y.toInt(), width.toInt(), height.toInt());
 
-    final directory = Directory.systemTemp;
-    if (!await directory.exists()) {
-      await directory.create(recursive: true);
-    }
+    // final directory = Directory.systemTemp;
+    // if (!await directory.exists()) {
+    //   await directory.create(recursive: true);
+    // }
     final File croppedFile = File('${image.path}');
     croppedFile.writeAsBytesSync(img.encodeJpg(croppedImage));
     print('Cropped successfully.');
