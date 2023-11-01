@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
-import 'package:testtensorflow/views/view_picture.dart';
 import '../controller/scan_controller.dart';
 import 'button_Camera.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class CameraView extends StatefulWidget {
   CameraView({super.key});
@@ -37,12 +37,66 @@ class _CameraViewState extends State<CameraView> {
               controller.y1 != null &&
               controller.y2 != null) {
             // Khi điều kiện đủ để tự động chụp ảnh, gọi hàm autoCapture
-
               print("Dô rồi nè 2");
               autoCapture(controller, factorX, factorY);
-
             print("Dô rồi nè 3");
-            return Stack(
+            return capturedImage!=null ?
+              SafeArea(
+                  child: Stack(
+                      children: [
+                        Image.file(
+                          File(capturedImage!.path),
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
+                        // Image.memory(Uint8List.fromList(croppedImage), fit: BoxFit.cover, width: double.infinity, height: double.infinity),
+                        GestureDetector(
+                            onTap: (){
+                              Navigator.pop(context);
+                            },
+                            child: button(Icons.arrow_back_ios_new_outlined, Alignment.topLeft,
+                                false,  Colors.transparent, Colors.white)),
+                        GestureDetector(
+                          onTap: (){
+                            setState(() {
+                            });
+                          },
+                          child: Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                              margin:const  EdgeInsets.only(
+                                left: 20,
+                                right: 40,
+                                bottom: 40,
+                              ),
+                              height: 60,
+                              width: 60,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    offset: Offset(2,2),
+                                    blurRadius: 10,
+                                  )
+                                ],
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.done,
+                                  color: Colors.blue,
+                                  size: 40,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ]
+                  ),
+                ):
+            Stack(
               children: [
                 CameraPreview(controller.cameraController),
                 // Hiển thị khung chọn vùng
@@ -73,63 +127,6 @@ class _CameraViewState extends State<CameraView> {
                       : Container(),
                 ),
                 // Hiển thị ảnh đã chụp
-                if (capturedImage != null)
-                 SafeArea(
-                child: Stack(
-          children: [
-          Image.file(
-          File(capturedImage!.path),
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-          ),
-          GestureDetector(
-          onTap: (){
-          Navigator.pop(context);
-          },
-          child: button(Icons.arrow_back_ios_new_outlined, Alignment.topLeft,
-          false,  Colors.transparent, Colors.white)),
-          GestureDetector(
-          onTap: (){
-          setState(() {
-
-          });
-          },
-          child: Align(
-          alignment: Alignment.bottomRight,
-          child: Container(
-          margin: EdgeInsets.only(
-          left: 20,
-          right: 40,
-          bottom: 40,
-          ),
-          height: 60,
-          width: 60,
-          decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          boxShadow: [
-          BoxShadow(
-          color: Colors.black26,
-          offset: Offset(2,2),
-          blurRadius: 10,
-          )
-          ],
-          ),
-          child: Center(
-          child: Icon(
-          Icons.done,
-          color: Colors.blue,
-          size: 40,
-          ),
-          ),
-          ),
-          ),
-          ),
-          ]
-          ),
-          )
-
                 // FutureBuilder<Uint8List>(
                 //   future: croppedFile,
                 //   builder: (context, snapshot) {
@@ -141,9 +138,10 @@ class _CameraViewState extends State<CameraView> {
                 //   },
                 // ),
 
-          ],
+              ],
             );
-          } else {
+          }
+          else {
             return const Center(
               child: Text("Loading Preview..."),
             );
@@ -171,11 +169,12 @@ class _CameraViewState extends State<CameraView> {
       double width = (controller.x2! - controller.x1!) * factorX;
       double height = (controller.y2! - controller.y1!) * factorY;
       print("chụp ảnh 4");
-      File croppedImage = await _cropImage(captured, x, y, width, height);
+      XFile? croppedImage = await _cropImage(captured, x , y, width, height);
       print("chụp ảnh 5");
       setState(() {
-        capturedImage = XFile(croppedImage.path);
-        print("đường dẫn ảnh sau cắt: ${croppedImage.path}");
+        capturedImage = croppedImage;
+            // File(croppedImage!.path);
+        print("Đường dẫn ảnh sau cắt: ${capturedImage}");
         isAutoCapturing = false;
       });
     } catch (e) {
@@ -209,17 +208,39 @@ class _CameraViewState extends State<CameraView> {
   // }
 
 // Hàm cắt ảnh và trả về tệp đã cắt
-  Future<File> _cropImage(XFile image, double x, double y, double width, double height) async {
+  Future<XFile?> _cropImage(XFile? image, double x, double y, double width, double height) async {
+    if (image == null) {
+      print('Invalid image file.');
+      return null;
+    }
+
     final File imageFile = File(image.path);
-    final img.Image imgImage = img.decodeImage(imageFile.readAsBytesSync())!;
+    if (!imageFile.existsSync()) {
+      print('Image file does not exist.');
+      return null;
+    }
 
-    final img.Image croppedImage = img.copyCrop(imgImage, x.toInt(), y.toInt(), width.toInt(), height.toInt());
+    img.Image? imgImage;
+    try {
+      final File imageFile = File(image.path);
+      imgImage = img.decodeImage(imageFile.readAsBytesSync());
+    } catch (e) {
+      print('Error decoding image: $e');
+    }
 
-    final directory = await getTemporaryDirectory(); // Lấy thư mục tạm thời
+    if (imgImage == null) {
+      // Xử lý lỗi ở đây, ví dụ: in ra thông báo lỗi hoặc thực hiện hành động thay thế.
+      print('Failed to decode image. Handle the error appropriately.');
+    }
 
-    final File croppedFile = File('${directory.path}/cropped_image.jpeg'); // Lưu vào thư mục tạm thời
+    // Tiếp tục xử lý ảnh cắt ở đây
+    final img.Image croppedImage = img.copyCrop(imgImage!, x.toInt(), y.toInt(), width.toInt(), height.toInt());
+
+    final directory = await getTemporaryDirectory();
+    final File croppedFile = File('${directory.path}/cropped_image.jpeg');
     croppedFile.writeAsBytesSync(img.encodeJpg(croppedImage));
-    return croppedFile;
+    print('Cắt thành công.');
+    return image;
   }
 
 }
