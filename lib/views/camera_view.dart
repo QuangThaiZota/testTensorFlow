@@ -35,69 +35,27 @@ class _CameraViewState extends State<CameraView> {
           double factorX = screenWidth / (controller.imgHeight ?? 1);
           double factorY = screenHeight / (controller.imgWidth ?? 1);
           print("Dô rồi nè 1 ");
-          if (controller.isCameraInitialized.value && controller.x1 != null &&
-              controller.x2 != null &&
-              controller.y1 != null &&
-              controller.y2 != null) {
+          if (controller.isCameraInitialized.value) {
               print("Dô rồi nè 2");
-              autoCapture(controller, factorX, factorY);
+              if( controller.label == "CCCD")
+              {
+                autoCapture(controller, factorX, factorY);
+              }
             print("Dô rồi nè 3");
             return capturedImage!=null ?
-              SafeArea(
-                  child: Stack(
-                      children: [
-                        Image.file(
-                          File(capturedImage!.path),
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                        ),
-                        // Image.memory(Uint8List.fromList(croppedImage), fit: BoxFit.cover, width: double.infinity, height: double.infinity),
-                        GestureDetector(
-                            onTap: (){
-                              // Navigator.pop(context);
-                            },
-                            child: button(Icons.arrow_back_ios_new_outlined, Alignment.topLeft,
-                                false,  Colors.transparent, Colors.white)),
-                        GestureDetector(
-                          onTap: (){
-                            setState(() {
-                            });
-                          },
-                          child: Align(
-                            alignment: Alignment.bottomRight,
-                            child: Container(
-                              margin:const  EdgeInsets.only(
-                                left: 20,
-                                right: 40,
-                                bottom: 40,
-                              ),
-                              height: 60,
-                              width: 60,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    offset: Offset(2,2),
-                                    blurRadius: 10,
-                                  )
-                                ],
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.done,
-                                  color: Colors.blue,
-                                  size: 40,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ]
+            SafeArea(
+              child: Stack(
+                children: [
+                  FittedBox(
+                    fit: BoxFit.contain, // Giữ tỷ lệ gốc của ảnh
+                    child: Image.file(
+                      File(capturedImage!.path),
+                    ),
                   ),
-                ):
+                ],
+              ),
+            )
+                :
             Stack(
               children: [
                 CameraPreview(controller.cameraController),
@@ -155,10 +113,10 @@ class _CameraViewState extends State<CameraView> {
       // double y = controller.y1! * factorY;
       double x = (controller.x1 +controller.x2)/2;
       double y = (controller.y1 +controller.y2)/2;
-      double width = (controller.x2! - controller.x1!) * factorX;
-      double height = (controller.y2! - controller.y1!) * factorY;
+      double width = (controller.x2! - controller.x1!) * factorX*100;
+      double height = (controller.y2! - controller.y1!) * factorY*100;
       print("chụp ảnh 4");
-      XFile? croppedImage = await _cropImage(_pickedFile, x , y, width+600, height+600);
+      XFile? croppedImage = await _cropImage(_pickedFile, x , y, width, height);
       // _cropImage();
       print("chụp ảnh 5");
       setState(() {
