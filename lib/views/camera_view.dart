@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import '../controller/scan_controller.dart';
 import 'button_Camera.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 class CameraView extends StatefulWidget {
   CameraView({super.key});
@@ -18,6 +19,8 @@ class CameraView extends StatefulWidget {
 
 class _CameraViewState extends State<CameraView> {
   XFile? capturedImage;
+  XFile? _pickedFile;
+  CroppedFile? _croppedFile;
   bool isAutoCapturing = false;
 
   @override
@@ -36,7 +39,6 @@ class _CameraViewState extends State<CameraView> {
               controller.x2 != null &&
               controller.y1 != null &&
               controller.y2 != null) {
-            // Khi điều kiện đủ để tự động chụp ảnh, gọi hàm autoCapture
               print("Dô rồi nè 2");
               autoCapture(controller, factorX, factorY);
             print("Dô rồi nè 3");
@@ -126,18 +128,6 @@ class _CameraViewState extends State<CameraView> {
                   )
                       : Container(),
                 ),
-                // Hiển thị ảnh đã chụp
-                // FutureBuilder<Uint8List>(
-                //   future: croppedFile,
-                //   builder: (context, snapshot) {
-                //     if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                //       return Image.memory(snapshot.data!, fit: BoxFit.cover, width: double.infinity, height: double.infinity);
-                //     } else {
-                //       return CircularProgressIndicator(); // Hiển thị tiến trình nếu hình ảnh đang được crop
-                //     }
-                //   },
-                // ),
-
               ],
             );
           }
@@ -151,29 +141,29 @@ class _CameraViewState extends State<CameraView> {
     );
   }
 
-  // Hàm tự động chụp ảnh
   void autoCapture(ScanController controller, double factorX, double factorY) async {
     print("chụp ảnh 1");
     if (isAutoCapturing || capturedImage != null) {
       return;
     }
-
     isAutoCapturing = true;
-
     print("chụp ảnh 2");
     try {
-      final XFile captured = await controller.cameraController.takePicture();
+      _pickedFile = await controller.cameraController.takePicture();
       print("chụp ảnh 3");
-      double x = controller.x1! * factorX;
-      double y = controller.y1! * factorY;
+      // double x = controller.x1! * factorX;
+      // double y = controller.y1! * factorY;
+      double x = (controller.x1 +controller.x2)/2;
+      double y = (controller.y1 +controller.y2)/2;
       double width = (controller.x2! - controller.x1!) * factorX;
       double height = (controller.y2! - controller.y1!) * factorY;
       print("chụp ảnh 4");
-      XFile? croppedImage = await _cropImage(captured, x , y, width, height);
+      XFile? croppedImage = await _cropImage(_pickedFile, x , y, width+600, height+600);
+      // _cropImage();
       print("chụp ảnh 5");
       setState(() {
         capturedImage = croppedImage;
-            // File(croppedImage!.path);
+            File(croppedImage!.path);
         print("Đường dẫn ảnh sau cắt: ${capturedImage}");
         isAutoCapturing = false;
       });
@@ -208,6 +198,185 @@ class _CameraViewState extends State<CameraView> {
   // }
 
 // Hàm cắt ảnh và trả về tệp đã cắt
+//   Future<XFile?> _cropImage(XFile? image, double x, double y, double width, double height) async {
+//     if (image == null) {
+//       print('Invalid image file.');
+//       return null;
+//     }
+//
+//     final File imageFile = File(image.path);
+//     if (!imageFile.existsSync()) {
+//       print('Image file does not exist.');
+//       return null;
+//     }
+//
+//     img.Image? imgImage;
+//     try {
+//       final File imageFile = File(image.path);
+//       imgImage = img.decodeImage(imageFile.readAsBytesSync());
+//     } catch (e) {
+//       print('Error decoding image: $e');
+//     }
+//
+//     if (imgImage == null) {
+//       // Xử lý lỗi ở đây, ví dụ: in ra thông báo lỗi hoặc thực hiện hành động thay thế.
+//       print('Failed to decode image. Handle the error appropriately.');
+//     }
+//
+//     // Tiếp tục xử lý ảnh cắt ở đây
+//     final img.Image croppedImage = img.copyCrop(imgImage!, x.toInt(), y.toInt(), width.toInt(), height.toInt());
+//
+//     final directory = await getTemporaryDirectory();
+//     if (!await directory.exists()) {
+//       await directory.create(recursive: true);
+//     }
+//     final File croppedFile = File('${directory.path}/cropped_image.jpg');
+//     croppedFile.writeAsBytesSync(img.encodeJpg(croppedImage));
+//     print('Cắt thành công.');
+//     return XFile(croppedFile.path);
+//   }
+
+  // Future<XFile?> cropImage(XFile? image, double x, double y, double width, double height) async {
+  //   if (image == null) {
+  //     print('Invalid image file.');
+  //     return null;
+  //   }
+  //
+  //   final File imageFile = File(image.path);
+  //   if (!imageFile.existsSync()) {
+  //     print('Image file does not exist.');
+  //     return null;
+  //   }
+  //
+  //   img.Image? imgImage;
+  //   try {
+  //     final File imageFile = File(image.path);
+  //     imgImage = img.decodeImage(imageFile.readAsBytesSync());
+  //   } catch (e) {
+  //     print('Error decoding image: $e');
+  //   }
+  //
+  //   if (imgImage == null) {
+  //     // Xử lý lỗi ở đây, ví dụ: in ra thông báo lỗi hoặc thực hiện hành động thay thế.
+  //     print('Failed to decode image. Handle the error appropriately.');
+  //     return null;
+  //   }
+  //
+  //   // Tiếp tục xử lý ảnh cắt ở đây
+  //   final img.Image croppedImage = img.copyCrop(imgImage, x.toInt(), y.toInt(), width.toInt(), height.toInt());
+  //
+  //   return XFile(croppedImage);
+  // }
+
+
+  // Future<XFile?> _cropImage(XFile? image, double x, double y, double width, double height) async {
+  //   if (image == null) {
+  //     print('Invalid image file.');
+  //     return null;
+  //   }
+  //
+  //   final File imageFile = File(image.path);
+  //   if (!imageFile.existsSync()) {
+  //     print('Image file does not exist.');
+  //     return null;
+  //   }
+  //
+  //   img.Image? imgImage;
+  //   try {
+  //     final File imageFile = File(image.path);
+  //     imgImage = img.decodeImage(imageFile.readAsBytesSync());
+  //   } catch (e) {
+  //     print('Error decoding image: $e');
+  //   }
+  //
+  //   if (imgImage == null) {
+  //     // Xử lý lỗi ở đây, ví dụ: in ra thông báo lỗi hoặc thực hiện hành động thay thế.
+  //     print('Failed to decode image. Handle the error appropriately.');
+  //     return null;
+  //   }
+  //
+  //   // Tiếp tục xử lý ảnh cắt ở đây
+  //   final img.Image croppedImage = img.copyCrop(imgImage, x.toInt(), y.toInt(), width.toInt(), height.toInt());
+  //
+  //   final directory = await getTemporaryDirectory();
+  //   if (!await directory.exists()) {
+  //     await directory.create(recursive: true);
+  //   }
+  //   final File croppedFile = File('${directory.path}/cropped_image.jpg');
+  //   final List<int> jpgBytes = img.encodeJpg(croppedImage);
+  //   await croppedFile.writeAsBytes(jpgBytes);
+  //
+  //   return XFile(croppedFile.path);
+  // }
+
+  // Future<void> _cropImage() async {
+  //   if (_pickedFile != null) {
+  //     final croppedFile = await ImageCropper().cropImage(
+  //       sourcePath: _pickedFile!.path,
+  //       compressFormat: ImageCompressFormat.jpg,
+  //       compressQuality: 100,
+  //       uiSettings: [
+  //         AndroidUiSettings(
+  //             toolbarTitle: 'Cropper',
+  //             toolbarColor: Colors.deepOrange,
+  //             toolbarWidgetColor: Colors.white,
+  //             initAspectRatio: CropAspectRatioPreset.original,
+  //             lockAspectRatio: false),
+  //         IOSUiSettings(
+  //           title: 'Cropper',
+  //         ),
+  //         WebUiSettings(
+  //           context: context,
+  //           presentStyle: CropperPresentStyle.dialog,
+  //           boundary: const CroppieBoundary(
+  //             width: 520,
+  //             height: 520,
+  //           ),
+  //           viewPort:
+  //           const CroppieViewPort(width: 480, height: 480, type: 'circle'),
+  //           enableExif: true,
+  //           enableZoom: true,
+  //           showZoomer: true,
+  //         ),
+  //       ],
+  //     );
+  //     if (croppedFile != null) {
+  //       setState(() {
+  //         _croppedFile  = croppedFile;
+  //       });
+  //     }
+  //   }
+  // }
+
+  // Future<XFile?> cropImage(XFile? image, double x, double y, double width, double height) async {
+  //   if (image == null) {
+  //     print('Invalid image file.');
+  //     return null;
+  //   }
+  //
+  //   final File imageFile = File(image.path);
+  //   if (!imageFile.existsSync()) {
+  //     print('Image file does not exist.');
+  //     return null;
+  //   }
+  //
+  //   try {
+  //     final croppedImageFile = await ImageCropper.cropImage(
+  //       sourcePath: image.path,
+  //       aspectRatio: CropAspectRatio(ratioX: width, ratioY: height),
+  //     );
+  //
+  //     if (croppedImageFile != null) {
+  //       return XFile(croppedImageFile.path);
+  //     }
+  //   } catch (e) {
+  //     print('Error cropping image: $e');
+  //   }
+  //
+  //   print('Failed to crop image. Handle the error appropriately.');
+  //   return null;
+  // }
+
   Future<XFile?> _cropImage(XFile? image, double x, double y, double width, double height) async {
     if (image == null) {
       print('Invalid image file.');
@@ -222,26 +391,27 @@ class _CameraViewState extends State<CameraView> {
 
     img.Image? imgImage;
     try {
-      final File imageFile = File(image.path);
       imgImage = img.decodeImage(imageFile.readAsBytesSync());
     } catch (e) {
       print('Error decoding image: $e');
     }
 
     if (imgImage == null) {
-      // Xử lý lỗi ở đây, ví dụ: in ra thông báo lỗi hoặc thực hiện hành động thay thế.
+      // Handle decoding error here, e.g., print an error message or take appropriate action.
       print('Failed to decode image. Handle the error appropriately.');
+      return null;
     }
 
-    // Tiếp tục xử lý ảnh cắt ở đây
-    final img.Image croppedImage = img.copyCrop(imgImage!, x.toInt(), y.toInt(), width.toInt(), height.toInt());
+    // Continue with cropping the image here.
+    final img.Image croppedImage = img.copyCrop(imgImage, x.toInt(), y.toInt(), width.toInt(), height.toInt());
 
-    final directory = await getTemporaryDirectory();
-    final File croppedFile = File('${directory.path}/cropped_image.jpeg');
+    final directory = Directory.systemTemp;
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    final File croppedFile = File('${image.path}');
     croppedFile.writeAsBytesSync(img.encodeJpg(croppedImage));
-    print('Cắt thành công.');
-    return image;
+    print('Cropped successfully.');
+    return XFile(croppedFile.path);
   }
-
 }
-
