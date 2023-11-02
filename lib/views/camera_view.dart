@@ -1,13 +1,14 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
+// import 'package:path_provider/path_provider.dart';
 import '../controller/scan_controller.dart';
-import 'button_Camera.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+// import 'button_Camera.dart';
+// import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 class CameraView extends StatefulWidget {
@@ -18,8 +19,8 @@ class CameraView extends StatefulWidget {
 }
 
 class _CameraViewState extends State<CameraView> {
-  XFile? capturedImage;
-  XFile? _pickedFile;
+   XFile? capturedImage;
+   XFile? _pickedFile;
   CroppedFile? _croppedFile;
   bool isAutoCapturing = false;
 
@@ -47,7 +48,7 @@ class _CameraViewState extends State<CameraView> {
               child: Stack(
                 children: [
                   FittedBox(
-                    fit: BoxFit.contain, // Giữ tỷ lệ gốc của ảnh
+                    fit: BoxFit.contain,
                     child: Image.file(
                       File(capturedImage!.path),
                     ),
@@ -59,7 +60,6 @@ class _CameraViewState extends State<CameraView> {
             Stack(
               children: [
                 CameraPreview(controller.cameraController),
-                // Hiển thị khung chọn vùng
                 Positioned(
                   left: controller.x1 != null ? controller.x1 * factorX : null,
                   top: controller.y1 != null ? controller.y1 * factorY : null,
@@ -68,22 +68,22 @@ class _CameraViewState extends State<CameraView> {
                       controller.y1 != null &&
                       controller.y2 != null
                       ? Container(
-                    width: (controller.x2 - controller.x1) * factorX,
-                    height: (controller.y2 - controller.y1) * factorY,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.green, width: 4),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          child: Text("${controller.label}"),
+                          width: (controller.x2 - controller.x1) * factorX,
+                          height: (controller.y2 - controller.y1) * factorY,
+                          decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.green, width: 4),
                         ),
-                      ],
-                    ),
-                  )
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              child: Text("${controller.label}"),
+                            ),
+                          ],
+                        ),
+                     )
                       : Container(),
                 ),
               ],
@@ -99,7 +99,7 @@ class _CameraViewState extends State<CameraView> {
     );
   }
 
-  Future<void> autoCapture(ScanController controller, double factorX, double factorY) async {
+  void autoCapture(ScanController controller, double factorX, double factorY) async {
     print("chụp ảnh 1");
     if (isAutoCapturing || capturedImage != null) {
       return;
@@ -107,22 +107,33 @@ class _CameraViewState extends State<CameraView> {
     isAutoCapturing = true;
     print("chụp ảnh 2");
     try {
-      _pickedFile = await controller.cameraController.takePicture();
+      capturedImage = await controller.cameraController.takePicture();
+      print("Đường dẫn ảnh sau chụp: ${capturedImage?.path}");
+      print("mimeType ảnh sau chụp: ${capturedImage?.mimeType}");
+      print("name ảnh sau chụp: ${capturedImage?.name}");
+      print("length ảnh sau chụp: ${capturedImage?.length}");
+      // print("bytes ảnh sau cắt: ${_pickedFile?.bytes}");
+      print("lastModified ảnh sau chụp: ${capturedImage?.lastModified}");
+      // print("overrides ảnh sau cắt: ${_pickedFile?.overrides}");
       print("chụp ảnh 3");
-      // double x = controller.x1! * factorX;
-      // double y = controller.y1! * factorY;
       double x = (controller.x1 +controller.x2)/2;
       double y = (controller.y1 +controller.y2)/2;
       double width = (controller.x2! - controller.x1!) * factorX*100;
-      double height = (controller.y2! - controller.y1!) * factorY*100;
+      double height = (controller.y2! - controller.y1!) * factorY* 100;
       print("chụp ảnh 4");
-      XFile? croppedImage = await _cropImage(_pickedFile, x , y, width, height);
+      // capturedImage = await _cropImage(capturedImage, x , y, width, height);
       // _cropImage();
       print("chụp ảnh 5");
       setState(() {
-        capturedImage = croppedImage;
-            File(croppedImage!.path);
-        print("Đường dẫn ảnh sau cắt: ${capturedImage}");
+        capturedImage = capturedImage;
+            XFile(capturedImage!.path);
+        print("Đường dẫn ảnh sau cắt: ${capturedImage?.path}");
+        print("mimeType ảnh sau cắt: ${capturedImage?.mimeType}");
+        print("name ảnh sau cắt: ${capturedImage?.name}");
+        print("length ảnh sau cắt: ${capturedImage?.length}");
+        // print("bytes ảnh sau cắt: ${fileBytes}");
+        print("lastModified ảnh sau cắt: ${capturedImage?.lastModified}");
+        // print("overrides ảnh sau cắt: ${capturedImage?.overrides}");
         isAutoCapturing = false;
       }
       );
@@ -152,21 +163,22 @@ class _CameraViewState extends State<CameraView> {
     }
 
     if (imgImage == null) {
-      // Handle decoding error here, e.g., print an error message or take appropriate action.
       print('Failed to decode image. Handle the error appropriately.');
       return null;
     }
 
-    // Continue with cropping the image here.
     final img.Image croppedImage = img.copyCrop(imgImage, x.toInt(), y.toInt(), width.toInt(), height.toInt());
 
-    // final directory = Directory.systemTemp;
-    // if (!await directory.exists()) {
-    //   await directory.create(recursive: true);
-    // }
+    final directory = Directory.systemTemp;
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+
+
     final File croppedFile = File('${image.path}');
     croppedFile.writeAsBytesSync(img.encodeJpg(croppedImage));
     print('Cropped successfully.');
+    print ('$croppedFile');
     return XFile(croppedFile.path);
   }
 }
