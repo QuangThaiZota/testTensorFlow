@@ -112,9 +112,7 @@ class _CameraViewState extends State<CameraView> {
       print("mimeType ảnh sau chụp: ${capturedImage?.mimeType}");
       print("name ảnh sau chụp: ${capturedImage?.name}");
       print("length ảnh sau chụp: ${capturedImage?.length}");
-      // print("bytes ảnh sau cắt: ${_pickedFile?.bytes}");
       print("lastModified ảnh sau chụp: ${capturedImage?.lastModified}");
-      // print("overrides ảnh sau cắt: ${_pickedFile?.overrides}");
       print("chụp ảnh 3");
       double x = (controller.x1 +controller.x2)/2;
       double y = (controller.y1 +controller.y2)/2;
@@ -131,9 +129,7 @@ class _CameraViewState extends State<CameraView> {
         print("mimeType ảnh sau cắt: ${capturedImage?.mimeType}");
         print("name ảnh sau cắt: ${capturedImage?.name}");
         print("length ảnh sau cắt: ${capturedImage?.length}");
-        // print("bytes ảnh sau cắt: ${fileBytes}");
         print("lastModified ảnh sau cắt: ${capturedImage?.lastModified}");
-        // print("overrides ảnh sau cắt: ${capturedImage?.overrides}");
         isAutoCapturing = false;
       }
       );
