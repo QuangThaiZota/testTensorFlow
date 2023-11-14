@@ -37,8 +37,8 @@ class _CameraViewState extends State<CameraView> {
           double factorY = screenHeight / (controller.imgWidth ?? 1);
           print("Dô rồi nè 1 ");
           if (controller.isCameraInitialized.value) {
-              print("Dô rồi nè 2");
-              if( controller.label == "CCCD")
+              print("Dô rồi nè 2: ${controller.label}");
+              if( controller.label == "CCCD_Chip_FrontSide1")
               {
                 autoCapture(controller, factorX, factorY);
               }
@@ -139,42 +139,42 @@ class _CameraViewState extends State<CameraView> {
     }
   }
 
-  Future<XFile?> _cropImage(XFile? image, double x, double y, double width, double height) async {
-    if (image == null) {
-      print('Invalid image file.');
-      return null;
-    }
-
-    final File imageFile = File(image.path);
-    if (!imageFile.existsSync()) {
-      print('Image file does not exist.');
-      return null;
-    }
-
-    img.Image? imgImage;
-    try {
-      imgImage = img.decodeImage(imageFile.readAsBytesSync());
-    } catch (e) {
-      print('Error decoding image: $e');
-    }
-
-    if (imgImage == null) {
-      print('Failed to decode image. Handle the error appropriately.');
-      return null;
-    }
-
-    final img.Image croppedImage = img.copyCrop(imgImage, x.toInt(), y.toInt(), width.toInt(), height.toInt());
-
-    final directory = Directory.systemTemp;
-    if (!await directory.exists()) {
-      await directory.create(recursive: true);
-    }
-
-
-    final File croppedFile = File('${image.path}');
-    croppedFile.writeAsBytesSync(img.encodeJpg(croppedImage));
-    print('Cropped successfully.');
-    print ('$croppedFile');
-    return XFile(croppedFile.path);
-  }
+  // Future<XFile?> _cropImage(XFile? image, double x, double y, double width, double height) async {
+  //   if (image == null) {
+  //     print('Invalid image file.');
+  //     return null;
+  //   }
+  //
+  //   final File imageFile = File(image.path);
+  //   if (!imageFile.existsSync()) {
+  //     print('Image file does not exist.');
+  //     return null;
+  //   }
+  //
+  //   img.Image? imgImage;
+  //   try {
+  //     imgImage = img.decodeImage(imageFile.readAsBytesSync());
+  //   } catch (e) {
+  //     print('Error decoding image: $e');
+  //   }
+  //
+  //   if (imgImage == null) {
+  //     print('Failed to decode image. Handle the error appropriately.');
+  //     return null;
+  //   }
+  //
+  //   final img.Image croppedImage = img.copyCrop(imgImage, x.toInt(), y.toInt(), width.toInt(), height.toInt());
+  //
+  //   final directory = Directory.systemTemp;
+  //   if (!await directory.exists()) {
+  //     await directory.create(recursive: true);
+  //   }
+  //
+  //
+  //   final File croppedFile = File('${image.path}');
+  //   croppedFile.writeAsBytesSync(img.encodeJpg(croppedImage));
+  //   print('Cropped successfully.');
+  //   print ('$croppedFile');
+  //   return XFile(croppedFile.path);
+  // }
 }

@@ -42,7 +42,7 @@ class ScanController extends GetxController{
   late Timer frameTimer;
 
   void startFrameTimer() {
-    const frameDuration = const Duration(milliseconds: 16); // 16ms là thời gian giữa các khung hình, tương đương với 60 khung hình mỗi giây
+    const frameDuration = const Duration(milliseconds: 32); // 16ms là thời gian giữa các khung hình, tương đương với 60 khung hình mỗi giây
     frameTimer = Timer.periodic(frameDuration, (timer) {
       // Thực hiện xử lý khung hình ở đây, ví dụ:
       objectDectector(cameraImage!);
@@ -59,17 +59,16 @@ class ScanController extends GetxController{
     if(await Permission.camera.request().isGranted)
       {
         cameras = await availableCameras();
-
+        print("initCamera");
         cameraController = await CameraController(
           cameras[0],
           ResolutionPreset.max,          // imageFormatGroup: ImageFormatGroup.fromCameras(cameras),
         );
         await cameraController.initialize().then((value) {
-
            cameraController.startImageStream((image){
              cameraImage = image;
              cameraCout++;
-             if(cameraCout%10==0){
+             if(cameraCout% 5==0){
                cameraCout =0;
                objectDectector(image);
              }
@@ -99,10 +98,10 @@ class ScanController extends GetxController{
 
     // Use Yolo v8
     await vision.loadYoloModel(
-        modelPath: 'assets/best_float32.tflite',
+        modelPath: 'assets/best_float16.tflite',
         labels: 'assets/labelmodel.txt',
         modelVersion: "yolov8",
-        quantization: true,
+        quantization: false,
         numThreads: 4,
         useGpu: false);
 
@@ -244,7 +243,7 @@ class ScanController extends GetxController{
   // }
 
   objectDectector(CameraImage image) async {
-
+    log("objectDectector");
     if (cameraImage == null) {
       return; // Tránh xử lý nếu cameraImage chưa được khởi tạo
     }
@@ -257,6 +256,8 @@ class ScanController extends GetxController{
       confThreshold: 0.4,
       classThreshold: 0.5,
     );
+
+    log("Result is $detector");
 
     imgHeight = image.height;
     imgWidth = image.width;
