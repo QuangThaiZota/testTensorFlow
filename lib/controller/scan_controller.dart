@@ -98,7 +98,7 @@ class ScanController extends GetxController{
 
     // Use Yolo v8
     await vision.loadYoloModel(
-        modelPath: 'assets/best_float16.tflite',
+        modelPath: 'assets/best_float32.tflite',
         labels: 'assets/labelmodel.txt',
         modelVersion: "yolov8",
         quantization: false,
