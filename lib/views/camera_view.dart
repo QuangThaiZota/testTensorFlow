@@ -37,17 +37,21 @@ class _CameraViewState extends State<CameraView> {
         builder: (controller) {
           double factorX = screenWidth / (controller.imgHeight ?? 1);
           double factorY = screenHeight / (controller.imgWidth ?? 1);
-          double x = (controller.x1 +controller.x2)/2;
-          double y = (controller.y1 +controller.y2)/2;
-          double width = (controller.x2! - controller.x1!) * factorX*100;
-          double height = (controller.y2! - controller.y1!) * factorY* 100;
+
+          // double x = (controller.x2 - controller.x1)/1.0;
+          // double y = (controller.y2 - controller.y1)/1.0;
+
+          double x = (controller.x1)*1.0;
+          double y = (controller.y1)*1.0;
+          double width = (controller.x2 - controller.x1)*1.0;
+          double height = (controller.y2 - controller.y1)*1.0;
           print("Dô rồi nè 1 ");
           if (controller.isCameraInitialized.value) {
             print("Dô rồi nè 2: ${controller.label}");
 
             if(count > 15){
               print('Chụp chỗ này $count');
-              autoCapture(controller, factorX, factorY,x,y,width,height);
+              autoCapture(controller, factorX, factorY, x, y, width, height);
             }
 
             if( controller.label == "CCCD_Chip_FrontSide")
@@ -74,10 +78,11 @@ class _CameraViewState extends State<CameraView> {
             print("Dô rồi nè 3");
             return capturedImage!=null ?
             SafeArea(
-              child: Stack(
+              child: Column(
                 children: [
+                  Container(height: 200,),
                   FittedBox(
-                    fit: BoxFit.contain,
+                    fit: BoxFit.fitWidth,
                     child: Image.file(
                       File(capturedImage!.path),
                     ),
@@ -143,24 +148,14 @@ class _CameraViewState extends State<CameraView> {
       print("length ảnh sau chụp: ${capturedImage?.length}");
       print("lastModified ảnh sau chụp: ${capturedImage?.lastModified}");
       print("chụp ảnh 3");
-
+      print("Thông số ảnh:$x, $y, $width, $height");
       print("chụp ảnh 4");
-      capturedImage = await _cropImage(capturedImage, x , y, width, height);
+      capturedImage = await _cropImage(capturedImage, 50, 100, width, height);
       // _cropImage();
       print("chụp ảnh 5");
       setState(() async {
         capturedImage = capturedImage;
         XFile(capturedImage!.path);
-
-        String filePath = capturedImage!.path;
-
-        if (await File(filePath).exists())
-        {
-          print('Tệp tin tồn tại.');
-        } else {
-          print('Tệp tin không tồn tại.');
-        }
-
         print("Đường dẫn ảnh sau cắt: ${capturedImage?.path}");
         print("mimeType ảnh sau cắt: ${capturedImage?.mimeType}");
         print("name ảnh sau cắt: ${capturedImage?.name}");
@@ -199,13 +194,13 @@ class _CameraViewState extends State<CameraView> {
       return null;
     }
 
+    print("Tọa độ: $x,$y,$width,$height ");
     final img.Image croppedImage = img.copyCrop(imgImage, x.toInt(), y.toInt(), width.toInt(), height.toInt());
 
     final directory = Directory.systemTemp;
     if (!await directory.exists()) {
       await directory.create(recursive: true);
     }
-
 
     final File croppedFile = File('${image.path}');
     croppedFile.writeAsBytesSync(img.encodeJpg(croppedImage));
@@ -214,4 +209,6 @@ class _CameraViewState extends State<CameraView> {
 
     return XFile(croppedFile.path);
   }
+
+
 }
