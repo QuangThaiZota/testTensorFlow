@@ -19,11 +19,11 @@ class CameraView extends StatefulWidget {
 }
 
 class _CameraViewState extends State<CameraView> {
-   XFile? capturedImage;
-   XFile? _pickedFile;
+  XFile? capturedImage;
+  XFile? _pickedFile;
   CroppedFile? _croppedFile;
   bool isAutoCapturing = false;
-   int count =0;
+  int count =0;
 
 
   @override
@@ -37,36 +37,40 @@ class _CameraViewState extends State<CameraView> {
         builder: (controller) {
           double factorX = screenWidth / (controller.imgHeight ?? 1);
           double factorY = screenHeight / (controller.imgWidth ?? 1);
+          double x = (controller.x1 +controller.x2)/2;
+          double y = (controller.y1 +controller.y2)/2;
+          double width = (controller.x2! - controller.x1!) * factorX*100;
+          double height = (controller.y2! - controller.y1!) * factorY* 100;
           print("Dô rồi nè 1 ");
           if (controller.isCameraInitialized.value) {
-              print("Dô rồi nè 2: ${controller.label}");
+            print("Dô rồi nè 2: ${controller.label}");
 
-              if(count > 15){
-                print('Chụp chỗ này $count');
-                autoCapture(controller, factorX, factorY);
-              }
+            if(count > 15){
+              print('Chụp chỗ này $count');
+              autoCapture(controller, factorX, factorY,x,y,width,height);
+            }
 
-              if( controller.label == "CCCD_Chip_FrontSide")
-              {
+            if( controller.label == "CCCD_Chip_FrontSide")
+            {
 
-                  count++;
-                  print('Đếm $count');
-              }
-              if( controller.label == "CCCD_Chip_BackSide")
-              {
-                count= 0;
-                print('Đếm $count');
-              }
-              if( controller.label == "CCCD_NoChip")
-              {
-                count= 0;
-                print('Đếm $count');
-              }
-              if( controller.label == "CMND")
-              {
-                count= 0;
-                print('Đếm $count');
-              }
+              count++;
+              print('Đếm $count');
+            }
+            if( controller.label == "CCCD_Chip_BackSide")
+            {
+              count= 0;
+              print('Đếm $count');
+            }
+            if( controller.label == "CCCD_NoChip")
+            {
+              count= 0;
+              print('Đếm $count');
+            }
+            if( controller.label == "CMND")
+            {
+              count= 0;
+              print('Đếm $count');
+            }
             print("Dô rồi nè 3");
             return capturedImage!=null ?
             SafeArea(
@@ -93,22 +97,22 @@ class _CameraViewState extends State<CameraView> {
                       controller.y1 != null &&
                       controller.y2 != null
                       ? Container(
-                          width: (controller.x2 - controller.x1) * factorX,
-                          height: (controller.y2 - controller.y1) * factorY,
-                          decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.green, width: 4),
+                    width: (controller.x2 - controller.x1) * factorX,
+                    height: (controller.y2 - controller.y1) * factorY,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green, width: 4),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          color: Colors.white,
+                          child: Text("${controller.label}"),
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              color: Colors.white,
-                              child: Text("${controller.label}"),
-                            ),
-                          ],
-                        ),
-                     )
+                      ],
+                    ),
+                  )
                       : Container(),
                 ),
               ],
@@ -124,7 +128,7 @@ class _CameraViewState extends State<CameraView> {
     );
   }
 
-  void autoCapture(ScanController controller, double factorX, double factorY) async {
+  void autoCapture(ScanController controller, double factorX, double factorY, double x, double y, double width, double height) async {
     print("chụp ảnh 1");
     if (isAutoCapturing || capturedImage != null) {
       return;
@@ -139,25 +143,22 @@ class _CameraViewState extends State<CameraView> {
       print("length ảnh sau chụp: ${capturedImage?.length}");
       print("lastModified ảnh sau chụp: ${capturedImage?.lastModified}");
       print("chụp ảnh 3");
-      double x = (controller.x1 +controller.x2)/2;
-      double y = (controller.y1 +controller.y2)/2;
-      double width = (controller.x2! - controller.x1!) * factorX*100;
-      double height = (controller.y2! - controller.y1!) * factorY* 100;
+
       print("chụp ảnh 4");
       capturedImage = await _cropImage(capturedImage, x , y, width, height);
       // _cropImage();
       print("chụp ảnh 5");
       setState(() async {
         capturedImage = capturedImage;
-            XFile(capturedImage!.path);
+        XFile(capturedImage!.path);
 
         String filePath = capturedImage!.path;
 
         if (await File(filePath).exists())
         {
           print('Tệp tin tồn tại.');
-          } else {
-        print('Tệp tin không tồn tại.');
+        } else {
+          print('Tệp tin không tồn tại.');
         }
 
         print("Đường dẫn ảnh sau cắt: ${capturedImage?.path}");
