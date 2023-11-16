@@ -11,6 +11,13 @@ import '../controller/scan_controller.dart';
 // import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_cropper/image_cropper.dart';
 
+
+import 'dart:async';
+import 'dart:ui' as ui;
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image/image.dart' as img;
+
 class CameraView extends StatefulWidget {
   CameraView({super.key});
 
@@ -170,45 +177,72 @@ class _CameraViewState extends State<CameraView> {
     }
   }
 
+  // Future<XFile?> _cropImage(XFile? image, double x, double y, double width, double height) async {
+  //   if (image == null) {
+  //     print('Invalid image file.');
+  //     return null;
+  //   }
+  //
+  //   final File imageFile = File(image.path);
+  //   if (!imageFile.existsSync()) {
+  //     print('Image file does not exist.');
+  //     return null;
+  //   }
+  //
+  //   img.Image? imgImage;
+  //   try {
+  //     imgImage = img.decodeImage(imageFile.readAsBytesSync());
+  //   } catch (e) {
+  //     print('Error decoding image: $e');
+  //   }
+  //
+  //   if (imgImage == null) {
+  //     print('Failed to decode image. Handle the error appropriately.');
+  //     return null;
+  //   }
+  //
+  //   final img.Image croppedImage = img.Image(width.toInt(), height.toInt());
+  //
+  //   // Vẽ phần cần crop từ ảnh gốc lên ảnh mới
+  //   img.Image.copyInto(croppedImage, img.Image.from(image.width, image.height), dstX: 0, dstY: 0, srcX: x.toInt(), srcY: y.toInt(), srcW: width.toInt(), srcH: height.toInt());
+  //
+  //   print("Tọa độ: $x,$y,$width,$height ");
+  //   // final img.Image croppedImage = img.copyCrop(imgImage, x.toInt(), y.toInt(), width.toInt(), height.toInt());
+  //
+  //   final directory = Directory.systemTemp;
+  //   if (!await directory.exists()) {
+  //     await directory.create(recursive: true);
+  //   }
+  //
+  //   final File croppedFile = File('${image.path}');
+  //   croppedFile.writeAsBytesSync(img.encodeJpg(croppedImage));
+  //   print('Cropped successfully.');
+  //   print ('$croppedFile');
+  //
+  //   return XFile(croppedFile.path);
+  // }
   Future<XFile?> _cropImage(XFile? image, double x, double y, double width, double height) async {
     if (image == null) {
       print('Invalid image file.');
       return null;
     }
 
-    final File imageFile = File(image.path);
-    if (!imageFile.existsSync()) {
-      print('Image file does not exist.');
-      return null;
-    }
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: image.path,
+      aspectRatio: CropAspectRatio(ratioX: width, ratioY: height),
+      maxWidth: width.toInt() * 2,
+      maxHeight: height.toInt() * 2,
+      cropStyle: CropStyle.rectangle,
+      compressQuality: 100,
+    );
 
-    img.Image? imgImage;
-    try {
-      imgImage = img.decodeImage(imageFile.readAsBytesSync());
-    } catch (e) {
-      print('Error decoding image: $e');
-    }
-
-    if (imgImage == null) {
-      print('Failed to decode image. Handle the error appropriately.');
-      return null;
-    }
-
-    print("Tọa độ: $x,$y,$width,$height ");
-    final img.Image croppedImage = img.copyCrop(imgImage, x.toInt(), y.toInt(), width.toInt(), height.toInt());
-
-    final directory = Directory.systemTemp;
-    if (!await directory.exists()) {
-      await directory.create(recursive: true);
-    }
-
-    final File croppedFile = File('${image.path}');
-    croppedFile.writeAsBytesSync(img.encodeJpg(croppedImage));
     print('Cropped successfully.');
-    print ('$croppedFile');
+    print('$croppedFile');
 
-    return XFile(croppedFile.path);
+    return XFile(croppedFile!.path);
   }
+
+
 
 
 }
