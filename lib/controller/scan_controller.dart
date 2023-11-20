@@ -276,6 +276,7 @@ class ScanController extends GetxController{
           y2 = double.tryParse(box[3].toString());
           print("Bounding Box Coordinates:");
           print("x1: $x1, y1: $y1, x2: $x2, y2: $y2");
+          print("imgWidth: $imgWidth, imgHeight: $imgHeight");
           update();
         }
       } else {
