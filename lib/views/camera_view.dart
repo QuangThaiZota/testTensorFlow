@@ -48,20 +48,31 @@ class _CameraViewState extends State<CameraView> {
           // double x = (controller.x2 - controller.x1)/1.0;
           // double y = (controller.y2 - controller.y1)/1.0;
 
-          double x = (controller.x1)*1.0;
-          double y = (controller.y1)*1.0;
-          double width = (controller.x2 - controller.x1)*1.0;
-          double height = (controller.y2 - controller.y1)*1.0;
+          double x = (controller.x1f)*1.0;
+          double y = (controller.y1f)*1.0;
+          double width = (controller.x2f - controller.x1f)*1.0;
+          double height = (controller.y2f - controller.y1f)*1.0;
+
+          double imgRatio = screenWidth / screenHeight;
+          double newWidth = screenWidth * factorX;
+          double newHeight = newWidth / imgRatio;
+
+
+          double pady = (screenHeight - newHeight) / 2;
           print("Dô rồi nè 1 ");
           if (controller.isCameraInitialized.value) {
             print("Dô rồi nè 2: ${controller.label}");
 
             if(count > 15){
               print('Chụp chỗ này $count');
-              x= x/1280*2160;
-              y=y/720*3840;
-              width=width;
-              height= height;
+              // double scale_x = 1;
+              //     // 2160 / 1280;
+              // double scale_y = 1;
+              // // 3840 / 720 ;
+              // x= x*scale_x;
+              // y=y*scale_y;
+              // width=width*scale_x;
+              // height= height*scale_y;
 
               autoCapture(controller, factorX, factorY, x, y, width, height);
             }
@@ -90,9 +101,23 @@ class _CameraViewState extends State<CameraView> {
             print("Dô rồi nè 3");
             return capturedImage!=null ?
             SafeArea(
-              child: Column(
+              child: Stack(
                 children: [
-                  Container(height: 200,),
+              // Positioned(
+              // left: (controller.x1f) * factorX,
+              //   top: (controller.y1f) * factorY + pady,
+              //   width: ((controller.x2f) - (controller.x1f)) * factorX,
+              //   height: ((controller.y2f) - (controller.y1f)) * factorY,
+              //   child: Container(
+              //     decoration: BoxDecoration(
+              //       borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+              //       border: Border.all(color: Colors.pink, width: 2.0),
+              //     ),
+              //     child: Text(
+              //       'hii'
+              //     ),
+              //   ),
+              // ),
                   FittedBox(
                     fit: BoxFit.fitWidth,
                     child: Image.file(
@@ -120,12 +145,12 @@ class _CameraViewState extends State<CameraView> {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: Colors.green, width: 4),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          child: Text("${controller.label}"),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              child: Text("${controller.label}"),
                         ),
                       ],
                     ),
@@ -169,8 +194,8 @@ class _CameraViewState extends State<CameraView> {
       // _cropImage();
       print("chụp ảnh 5");
       setState(() async {
-        capturedImage = capturedImage;
-        XFile(capturedImage!.path);
+        // capturedImage = capturedImage;
+        // XFile(capturedImage!.path);
         print("Đường dẫn ảnh sau cắt: ${capturedImage?.path}");
         print("mimeType ảnh sau cắt: ${capturedImage?.mimeType}");
         print("name ảnh sau cắt: ${capturedImage?.name}");
@@ -228,40 +253,20 @@ class _CameraViewState extends State<CameraView> {
     // Vẽ phần cần crop từ ảnh gốc lên ảnh mới
     // img.Image.copyInto(croppedImage, img.Image.from(image.width, image.height), dstX: 0, dstY: 0, srcX: x.toInt(), srcY: y.toInt(), srcW: width.toInt(), srcH: height.toInt());
 
-    print("Tọa độ: $x,$y,$width,$height ");
-    final img.Image croppedImage = img.copyCrop(imgImage, x.toInt(), y.toInt(), width.toInt(), height.toInt());
+    print("Tọa độ: $x,$y,$width,$height");
+    img.Image croppedImage = img.copyCrop(imgImage, x: x.toInt(), y: y.toInt(), width: width.toInt(),height: height.toInt());
 
     final directory = Directory.systemTemp;
     if (!await directory.exists()) {
       await directory.create(recursive: true);
     }
 
-    final File croppedFile = File('${image.path}');
+    File croppedFile = File('${imageFile}');
     croppedFile.writeAsBytesSync(img.encodeJpg(croppedImage));
     print('Cropped successfully.');
     print ('$croppedFile');
 
     return XFile(croppedFile.path);
   }
-  // Future<XFile?> _cropImage(XFile? image, double x, double y, double width, double height) async {
-  //   if (image == null) {
-  //     print('Invalid image file.');
-  //     return null;
-  //   }
-  //
-  //   final croppedFile = await ImageCropper().cropImage(
-  //     sourcePath: image.path,
-  //     aspectRatio: CropAspectRatio(ratioX: width, ratioY: height),
-  //     maxWidth: width.toInt() * 2,
-  //     maxHeight: height.toInt() * 2,
-  //     cropStyle: CropStyle.rectangle,
-  //     compressQuality: 100,
-  //   );
-  //
-  //   print('Cropped successfully.');
-  //   print('$croppedFile');
-  //
-  //   return XFile(croppedFile!.path);
-  // }
 
 }

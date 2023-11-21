@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:camera/camera.dart';
-import 'package:flutter_tflite/flutter_tflite.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_vision/flutter_vision.dart';
@@ -15,7 +14,6 @@ class ScanController extends GetxController{
     super.onInit();
     initCamera();
     initTFlite();
-    label = "ddd";
   }
 
   @override
@@ -27,7 +25,8 @@ class ScanController extends GetxController{
   late CameraController cameraController;
   late List<CameraDescription> cameras;
 
-  var x,y,w,h = 0.0;
+  var x1f,y1f,x2f,y2f = 0.0;
+
   var x1, x2, y1, y2;
   var label;
   var cameraCout = 0;
@@ -271,9 +270,13 @@ class ScanController extends GetxController{
         print("Detected Class: $label");
         if (box.length >= 4) {
           x1 = double.tryParse(box[0].toString());
+          x1f=x1;
           y1 = double.tryParse(box[1].toString());
+          y1f=y1;
           x2 = double.tryParse(box[2].toString());
+          x2f=x2;
           y2 = double.tryParse(box[3].toString());
+          y2f=y2;
           print("Bounding Box Coordinates:");
           print("x1: $x1, y1: $y1, x2: $x2, y2: $y2");
           print("imgWidth: $imgWidth, imgHeight: $imgHeight");
